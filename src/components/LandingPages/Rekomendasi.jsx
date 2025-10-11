@@ -21,7 +21,7 @@ const Rekomendasi = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center px-6 md:px-20 py-10 bg-gray-50">
+    <div className="min-h-screen w-full flex items-center justify-center px-6 md:px-20 py-10">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl w-full items-center">
         <div className="space-y-6">
           <h1 className="text-5xl md:text-6xl font-extrabold text-slate-800 leading-tight">
