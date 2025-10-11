@@ -1,7 +1,7 @@
 import Navbar from "../components/ui/navbar";
 import Galery from "../components/LandingPages/Galery";
 import Hero from "../components/LandingPages/hero";
-import Rekomendasi from "../components/LandingPages/rekomendasi";
+import Rekomendasi from "../components/LandingPages/Rekomendasi";
 import Footer from "../components/ui/footer";
 import Cta from "../components/LandingPages/cta";
 
