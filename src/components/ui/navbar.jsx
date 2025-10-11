@@ -133,7 +133,7 @@ const Navbar = () => {
             />
 
             <motion.div
-              className="fixed top-0 left-0 h-full w-md bg-white z-50 shadow-2xl md:hidden"
+              className="fixed top-0 left-0 h-full w-1/2 bg-white z-50 shadow-2xl md:hidden"
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
