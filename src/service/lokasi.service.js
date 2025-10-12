@@ -97,7 +97,8 @@ export const LokasiDelete = async (id) => {
   const supabaseUrl = environment.SUPABASE_URL;
 
   const oldImage = img.replace(
-    `${supabaseUrl}/storage/v1/object/public/ngalaminer-buckets/`
+    `${supabaseUrl}/storage/v1/object/public/ngalaminer-buckets/`,
+    ""
   );
 
   await supabase.storage.from("ngalaminer-buckets").remove([oldImage]);

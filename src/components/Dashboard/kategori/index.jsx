@@ -4,7 +4,7 @@ import { Search } from "lucide-react";
 import MenuData from "./menu-data";
 import CreateDialog from "./dialog/create-dialog";
 
-const Kuliner = () => {
+const Kategori = () => {
   const [search, setSearch] = useState("");
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
@@ -48,4 +48,4 @@ const Kuliner = () => {
   );
 };
 
-export default Kuliner;
+export default Kategori;

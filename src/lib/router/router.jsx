@@ -7,6 +7,8 @@ import Dashboard from "../../pages/dashboard";
 import DashboardLayout from "../../layout/DashboardLayout/DashboardLayout";
 import { Outlet } from "react-router";
 import Lokasi from "../../components/Dashboard/lokasi";
+import KategoriPages from "../../pages/dashboard/kategori";
+import KulinerPages from "../../pages/dashboard/kuliner";
 
 export const router = createBrowserRouter([
   {
@@ -38,6 +40,14 @@ export const router = createBrowserRouter([
       {
         path: "lokasi",
         element: <Lokasi />,
+      },
+      {
+        path: "category",
+        element: <KategoriPages />,
+      },
+      {
+        path: "kuliner",
+        element: <KulinerPages />,
       },
     ],
   },

@@ -96,12 +96,16 @@ export const KategoriDelete = async (id) => {
   const supabaseUrl = environment.SUPABASE_URL;
 
   const oldImage = img.replace(
-    `${supabaseUrl}/storage/v1/object/public/ngalaminer-buckets/`
+    `${supabaseUrl}/storage/v1/object/public/ngalaminer-buckets/`,
+    ""
   );
 
   await supabase.storage.from("ngalaminer-buckets").remove([oldImage]);
 
-  const { error } = await supabase.from("lokasi").delete().eq("id_lokasi", id);
+  const { error } = await supabase
+    .from("category")
+    .delete()
+    .eq("id_category", id);
 
   if (error) {
     return {
