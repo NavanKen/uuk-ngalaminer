@@ -5,11 +5,12 @@ import { router } from "./lib/router/router";
 import { Toaster } from "sonner";
 
 const App = () => {
-  const { checkAuth } = useAuthStore();
+  const checkAuth = useAuthStore((state) => state.checkAuth);
 
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>

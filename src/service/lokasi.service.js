@@ -142,3 +142,40 @@ export const uploadFile = async (file, oldImage) => {
 
   return publicUrl;
 };
+
+export const getAllLokasiPublic = async ({
+  search = "",
+  limit = 12,
+  offset = 0,
+}) => {
+  let query = supabase
+    .from("lokasi")
+    .select("*", { count: "exact" })
+    .order("nama_daerah", { ascending: true });
+
+  if (search) {
+    query = query.ilike("nama_daerah", `%${search}%`);
+  }
+
+  query = query.range(offset, offset + limit - 1);
+
+  const { data, error, count } = await query;
+
+  if (error) {
+    return { status: false, error };
+  }
+  return { status: true, data, count };
+};
+
+export const getLokasiById = async (id) => {
+  const { data, error } = await supabase
+    .from("lokasi")
+    .select("*")
+    .eq("id_lokasi", id)
+    .single();
+
+  if (error) {
+    return { status: false, error };
+  }
+  return { status: true, data };
+};

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { AuthLogin, AuthLogout, AuthMe } from "../service/auth.service";
 import { toast } from "sonner";
+import { Navigate } from "react-router";
 
 export const useAuthStore = create((set) => ({
   authUser: null,
@@ -37,6 +38,7 @@ export const useAuthStore = create((set) => ({
       console.error("error", error);
     } finally {
       set({ isLoggingIn: false });
+      Navigate("/dashboard");
     }
   },
 

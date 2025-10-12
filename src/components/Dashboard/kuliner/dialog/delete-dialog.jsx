@@ -11,8 +11,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Loader2, Trash2 } from "lucide-react";
-import { KategoriDelete } from "../../../../service/category.service";
-
+import { KulinerDelete } from "../../../../service/kuliner.service";
 
 const DeleteDialog = ({ id }) => {
   const [open, setOpen] = useState(false);
@@ -21,7 +20,7 @@ const DeleteDialog = ({ id }) => {
   const handleDelete = async () => {
     setIsLoading(true);
 
-    const res = await KategoriDelete(id);
+    const res = await KulinerDelete(id);
 
     if (!res.status) {
       toast.error(res?.pesan || "Gagal menghapus data");

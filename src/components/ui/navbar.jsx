@@ -1,11 +1,15 @@
 import { motion, AnimatePresence } from "motion/react";
-import { User, Menu, X, Home, LayoutGrid, Info, Utensils } from "lucide-react";
-import { Link } from "react-router";
+import { User, Menu, X, Home, LayoutGrid, Info, Utensils, MapPin } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
+import { useAuthStore } from "../../store/useAuthStore";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { authUser: user } = useAuthStore();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,31 +29,73 @@ const Navbar = () => {
     },
     {
       title: "Galery",
-      href: "/menu",
+      href: "/#galery",
       icon: LayoutGrid,
     },
     {
       title: "Rekomendasi",
-      href: "/about",
+      href: "/#rekomendasi",
       icon: Info,
     },
     {
       title: "Kuliner",
-      href: "/contact",
+      href: "/kuliner",
       icon: Utensils,
     },
+    {
+      title : "Lokasi",
+      href: "/lokasi",
+      icon: MapPin,
+    }
   ];
 
-  const navIcon = [
-    {
-      icon: User,
-      label: "Profile",
-      href: "/auth/login",
-    },
-  ];
+  const getProfileLink = () => {
+    if (user) {
+      return "/dashboard";
+    }
+    return "/auth/login";
+  };
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleNavClick = (e, href) => {
+    // Check if it's a hash link (section link)
+    if (href.includes("#")) {
+      e.preventDefault();
+      const [path, hash] = href.split("#");
+      
+      // If we're not on the home page, navigate there first
+      if (location.pathname !== "/" && path === "/") {
+        navigate("/");
+        // Wait for navigation then scroll
+        setTimeout(() => {
+          const element = document.getElementById(hash);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }, 100);
+      } else {
+        // Already on home page, just scroll
+        const element = document.getElementById(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+      setIsMobileMenuOpen(false);
+    } else if (href === "/") {
+      // Beranda link - scroll to top with animation
+      e.preventDefault();
+      if (location.pathname === "/") {
+        // Already on home page, scroll to top
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        // Navigate to home page
+        navigate("/");
+      }
+      setIsMobileMenuOpen(false);
+    }
   };
 
   return (
@@ -89,11 +135,12 @@ const Navbar = () => {
                 </div>
 
                 <div className="hidden md:flex md:space-x-8 text-gray-700">
-                  {navItems.slice(0, 4).map((nav, index) => (
+                  {navItems.map((nav, index) => (
                     <div key={index} className="relative group">
                       <Link
                         className="hover:text-orange-600 transition-colors duration-200 py-2 px-1 relative"
                         to={nav.href}
+                        onClick={(e) => handleNavClick(e, nav.href)}
                       >
                         {nav.title}
                       </Link>
@@ -102,17 +149,26 @@ const Navbar = () => {
                 </div>
 
                 <div className="flex space-x-4 items-center text-gray-700">
-                  {navIcon.map((item, index) => (
-                    <Link
-                      to={item.href}
-                      className="p-2 hover:bg-gray-100 rounded-lg hover:text-orange-600 transition-all duration-200 ease-in-out relative group"
-                      key={index}
-                      title={item.label}
-                    >
-                      <item.icon size={20} />
-                      <div className="absolute -inset-1 rounded-lg bg-orange-100 opacity-0 -z-10" />
-                    </Link>
-                  ))}
+                  <Link
+                    to={getProfileLink()}
+                    className="p-2 hover:bg-gray-100 rounded-lg hover:text-orange-600 transition-all duration-200 ease-in-out relative group"
+                    title={user ? "Dashboard" : "Login"}
+                  >
+                    {user && user.avatar_url ? (
+                      <img
+                        src={user.avatar_url}
+                        alt={user.username}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : user ? (
+                      <div className="w-8 h-8 rounded-full bg-[#FF6B35] flex items-center justify-center text-white font-semibold text-sm">
+                        {user.username?.charAt(0).toUpperCase() || "?"}
+                      </div>
+                    ) : (
+                      <User size={20} />
+                    )}
+                    <div className="absolute -inset-1 rounded-lg bg-orange-100 opacity-0 -z-10" />
+                  </Link>
                 </div>
               </div>
             </div>
@@ -178,7 +234,7 @@ const Navbar = () => {
                       <Link
                         to={nav.href}
                         className="flex items-center space-x-4 p-3 rounded-xl hover:bg-orange-50 transition-all duration-200 group text-gray-700"
-                        onClick={toggleMobileMenu}
+                        onClick={(e) => handleNavClick(e, nav.href)}
                       >
                         <motion.div
                           className="p-2 rounded-lg bg-orange-100 text-orange-600"

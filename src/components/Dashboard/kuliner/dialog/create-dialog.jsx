@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 import { ImageIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
-import { LokasiCreate } from "../../../../service/lokasi.service";
 import {
   Select,
   SelectContent,
@@ -22,30 +21,58 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { KategoriCreate } from "../../../../service/category.service";
+import {
+  KulinerCreate,
+  getAllKategori,
+  getAllLokasi,
+} from "../../../../service/kuliner.service";
+import { useAuthStore } from "../../../../store/useAuthStore";
 
 const CreateDialog = () => {
+  const { authUser } = useAuthStore();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [preview, setPreview] = useState(null);
+  const [kategoriList, setKategoriList] = useState([]);
+  const [lokasiList, setLokasiList] = useState([]);
   const [formData, setFormData] = useState({
-    nama_category: "",
-    keterangan: "",
-    is_active: "",
+    nama_kuliner: "",
+    id_category: "",
+    id_lokasi: "",
+    harga: "",
+    deskripsi: "",
     file: null,
   });
 
   useEffect(() => {
     if (open) {
       setFormData({
-        name: "",
-        alamat_lengkap: "",
-        deskripsi_daerah: "",
+        nama_kuliner: "",
+        id_category: "",
+        id_lokasi: "",
+        harga: "",
+        deskripsi: "",
         file: null,
       });
       setPreview(null);
+      fetchKategoriAndLokasi();
     }
   }, [open]);
+
+  const fetchKategoriAndLokasi = async () => {
+    const [kategoriRes, lokasiRes] = await Promise.all([
+      getAllKategori(),
+      getAllLokasi(),
+    ]);
+
+    if (kategoriRes.status) {
+      setKategoriList(kategoriRes.data);
+    }
+
+    if (lokasiRes.status) {
+      setLokasiList(lokasiRes.data);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,16 +81,24 @@ const CreateDialog = () => {
       return;
     }
 
+    if (!formData.id_category || !formData.id_lokasi) {
+      toast.error("Harap pilih kategori dan lokasi");
+      return;
+    }
+
     setIsLoading(true);
 
     const inserData = {
-      nama_category: formData.nama_category,
-      keterangan: formData.keterangan,
-      is_active: formData.is_active,
+      nama_kuliner: formData.nama_kuliner,
+      id_category: parseInt(formData.id_category),
+      id_lokasi: parseInt(formData.id_lokasi),
+      harga: parseFloat(formData.harga),
+      deskripsi: formData.deskripsi,
       file: formData.file,
+      id_profile: authUser?.id,
     };
 
-    const res = await KategoriCreate(inserData);
+    const res = await KulinerCreate(inserData);
 
     if (!res.status) {
       toast.error(res.pesan);
@@ -105,69 +140,112 @@ const CreateDialog = () => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Buat Kategori Baru</DialogTitle>
+          <DialogTitle>Buat Kuliner Baru</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} encType="multipart/form-data">
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1">
-                Nama Kategori
+                Nama Kuliner
               </label>
               <Input
                 className="py-5"
-                name="nama_category"
-                placeholder="Masukkan nama kategori"
-                value={formData.nama_daerah}
+                name="nama_kuliner"
+                placeholder="Masukkan nama kuliner"
+                value={formData.nama_kuliner}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Kategori
+              </label>
+              <Select
+                name="id_category"
+                value={formData.id_category}
+                onValueChange={(value) =>
+                  handleChange({ target: { name: "id_category", value } })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Pilih Kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Kategori</SelectLabel>
+                    {kategoriList.map((kategori) => (
+                      <SelectItem
+                        key={kategori.id_category}
+                        value={String(kategori.id_category)}
+                      >
+                        {kategori.nama_category}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Lokasi</label>
+              <Select
+                name="id_lokasi"
+                value={formData.id_lokasi}
+                onValueChange={(value) =>
+                  handleChange({ target: { name: "id_lokasi", value } })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Pilih Lokasi" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Lokasi</SelectLabel>
+                    {lokasiList.map((lokasi) => (
+                      <SelectItem
+                        key={lokasi.id_lokasi}
+                        value={String(lokasi.id_lokasi)}
+                      >
+                        {lokasi.nama_daerah}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Harga</label>
+              <Input
+                className="py-5"
+                type="number"
+                name="harga"
+                placeholder="Masukkan harga"
+                value={formData.harga}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Deskripsi
+              </label>
+              <Textarea
+                className="resize-none"
+                name="deskripsi"
+                placeholder="Masukkan deskripsi kuliner"
+                value={formData.deskripsi}
                 onChange={handleChange}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-1">
-                Keterangan
+                Gambar Kuliner
               </label>
-              <Input
-                className="py-5"
-                type="text"
-                name="keterangan"
-                placeholder="Masukkan Keterangan"
-                value={formData.price}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Status</label>
-              <Select
-                name="is_active"
-                value={formData.is_active}
-                onValueChange={(value) =>
-                  handleChange({ target: { name: "is_active", value } })
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Pilih Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Status</SelectLabel>
-                    <SelectItem value="true">Aktif</SelectItem>
-                    <SelectItem value="false">Non-Aktif</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              {/* <Textarea
-                className="resize-none"
-                type="text"
-                name="deskripsi_daerah"
-                placeholder="Masukkan Dekripsi Daerah"
-                value={formData.stock}
-                onChange={handleChange}
-              /> */}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Icon</label>
               <div className="flex items-center gap-4">
                 {preview ? (
                   <img

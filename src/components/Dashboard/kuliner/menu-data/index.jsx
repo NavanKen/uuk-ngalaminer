@@ -17,12 +17,37 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination } from "@/components/ui/pagination";
 import EditDialog from "../dialog/edit-dialog";
 import DeleteDialog from "../dialog/delete-dialog";
-import { Badge } from "@/components/ui/badge";
-import { useKategori } from "../../../../hooks/use-category";
+import { useKuliner } from "../../../../hooks/use-kuliner";
+import { useAuthStore } from "../../../../store/useAuthStore";
 
 const MenuData = ({ search, limit, page, onPageChange, onLimitChange }) => {
-  const { menuData, isLoading, total } = useKategori(search, limit, page);
+  const { authUser } = useAuthStore();
+  const { menuData, isLoading, total } = useKuliner(
+    search,
+    limit,
+    page,
+    authUser?.id,
+    authUser?.role
+  );
   const totalPages = Math.ceil(total / limit);
+
+  const formatRupiah = (angka) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(angka);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }).format(date);
+  };
 
   return (
     <>
@@ -32,9 +57,12 @@ const MenuData = ({ search, limit, page, onPageChange, onLimitChange }) => {
             <TableHeader>
               <TableRow className="bg-neutral-100 dark:bg-neutral-800">
                 <TableHead className="py-5">No</TableHead>
-                <TableHead className="py-5">Nama Kategori</TableHead>
-                <TableHead className="py-5">Keterangan</TableHead>
-                <TableHead className="py-5">Status</TableHead>
+                <TableHead className="py-5">Nama Kuliner</TableHead>
+                <TableHead className="py-5">Kategori</TableHead>
+                <TableHead className="py-5">Lokasi</TableHead>
+                <TableHead className="py-5">Harga</TableHead>
+                <TableHead className="py-5">Deskripsi</TableHead>
+                <TableHead className="py-5">Tgl Ditambahkan</TableHead>
                 <TableHead className="py-5 w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -58,13 +86,22 @@ const MenuData = ({ search, limit, page, onPageChange, onLimitChange }) => {
                       <Skeleton className="h-4 w-20 py-3" />
                     </TableCell>
                     <TableCell className="py-3">
+                      <Skeleton className="h-4 w-20 py-3" />
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <Skeleton className="h-4 w-32 py-3" />
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <Skeleton className="h-4 w-20 py-3" />
+                    </TableCell>
+                    <TableCell className="py-3">
                       <Skeleton className="h-4 w-6 py-3" />
                     </TableCell>
                   </TableRow>
                 ))
               ) : menuData.length === 0 ? (
                 <TableRow className="bg-neutral-50 dark:bg-neutral-900">
-                  <TableCell colSpan={5} className="text-center py-4">
+                  <TableCell colSpan={8} className="text-center py-4">
                     Data tidak ditemukan.
                   </TableCell>
                 </TableRow>
@@ -78,38 +115,45 @@ const MenuData = ({ search, limit, page, onPageChange, onLimitChange }) => {
                     <TableCell className="py-3">
                       <div className="flex items-center lg:gap-3 flex-col lg:flex-row">
                         <img
-                          src={menu.icon}
-                          alt={menu.icon}
+                          src={menu.gambar}
+                          alt={menu.nama_kuliner}
                           width={40}
                           height={40}
                           className="rounded-md object-cover"
                         />
-                        <span>{menu.nama_category}</span>
+                        <span>{menu.nama_kuliner}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="py-3">{menu.keterangan}</TableCell>
                     <TableCell className="py-3">
-                      <TableCell className="py-3">
-                        <Badge
-                          variant={menu.is_active ? "default" : "secondary"}
-                        >
-                          {menu.is_active ? "Aktif" : "Non-Aktif"}
-                        </Badge>
-                      </TableCell>
+                      {menu.category?.nama_category || "-"}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      {menu.lokasi?.nama_daerah || "-"}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      {formatRupiah(menu.harga)}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      {menu.deskripsi || "-"}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      {formatDate(menu.tanggal_ditambahkan)}
                     </TableCell>
                     <TableCell className="py-3">
                       <div className="flex gap-3">
                         <EditDialog
                           data={{
-                            id: menu.id_category,
-                            nama_category: menu.nama_category,
-                            keterangan: menu.keterangan,
-                            icon: menu.icon,
-                            is_active: menu.is_active,
+                            id: menu.id_kuliner,
+                            nama_kuliner: menu.nama_kuliner,
+                            id_category: menu.id_category,
+                            id_lokasi: menu.id_lokasi,
+                            harga: menu.harga,
+                            deskripsi: menu.deskripsi,
+                            gambar: menu.gambar,
                           }}
                         />
 
-                        <DeleteDialog id={menu.id_category} />
+                        <DeleteDialog id={menu.id_kuliner} />
                       </div>
                     </TableCell>
                   </TableRow>

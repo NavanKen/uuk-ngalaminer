@@ -13,7 +13,7 @@ const Kuliner = () => {
     <>
       <div>
         <div className="flex md:flex-row flex-col md:items-center gap-3 justify-between">
-          <h1 className="text-3xl font-bold">Manajamen Kategori</h1>
+          <h1 className="text-3xl font-bold">Manajamen Kuliner</h1>
           <div className="flex items-center gap-3">
             <div className="relative">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 size-4" />
