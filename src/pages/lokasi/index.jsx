@@ -23,8 +23,23 @@ const LokasiPage = () => {
   }, []);
 
   useEffect(() => {
+    const fetchLokasi = async () => {
+      setIsLoading(true);
+      const offset = (page - 1) * limit;
+      const res = await getAllLokasiPublic({
+        search,
+        limit,
+        offset,
+      });
+
+      if (res.status) {
+        setLokasiData(res.data);
+        setTotal(res.count);
+      }
+      setIsLoading(false);
+    };
     fetchLokasi();
-  }, [search, page, fetchLokasi]);
+  }, [search, page]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -34,22 +49,6 @@ const LokasiPage = () => {
 
     return () => clearTimeout(timer);
   }, [searchInput]);
-
-  const fetchLokasi = async () => {
-    setIsLoading(true);
-    const offset = (page - 1) * limit;
-    const res = await getAllLokasiPublic({
-      search,
-      limit,
-      offset,
-    });
-
-    if (res.status) {
-      setLokasiData(res.data);
-      setTotal(res.count);
-    }
-    setIsLoading(false);
-  };
 
   return (
     <>
