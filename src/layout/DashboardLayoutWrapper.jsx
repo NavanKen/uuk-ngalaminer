@@ -2,16 +2,11 @@ import { useAuthStore } from "../store/useAuthStore";
 import DashboardLayout from "./DashboardLayout/DashboardLayout";
 
 const DashboardLayoutWrapper = ({ children }) => {
-  const { authUser } = useAuthStore();
-  
-  // Get user role, default to 'user' if not found
-  const userRole = authUser?.role || "user";
+  const { authRole } = useAuthStore();
 
-  return (
-    <DashboardLayout type={userRole}>
-      {children}
-    </DashboardLayout>
-  );
+  const userRole = authRole;
+
+  return <DashboardLayout type={userRole}>{children}</DashboardLayout>;
 };
 
 export default DashboardLayoutWrapper;

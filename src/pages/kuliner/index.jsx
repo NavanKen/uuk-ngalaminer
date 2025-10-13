@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
 import { motion } from "motion/react";
+import { useState, useEffect } from "react";
 import { Search, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router";
 import Navbar from "../../components/ui/navbar";
@@ -22,13 +22,8 @@ const KulinerPage = () => {
   const [page, setPage] = useState(1);
   const limit = 12;
 
-  // Use custom hooks
-  const { categories, isLoading: categoriesLoading } = useCategories();
-  const {
-    kulinerData,
-    isLoading,
-    total,
-  } = useKulinerList({
+  const { categories, isLoading } = useCategories();
+  const { kulinerData, total } = useKulinerList({
     search,
     categoryId: categoryFilter === "all" ? null : parseInt(categoryFilter),
     limit,
@@ -37,12 +32,10 @@ const KulinerPage = () => {
 
   const totalPages = Math.ceil(total / limit);
 
-  // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
       setSearch(searchInput);
@@ -65,7 +58,6 @@ const KulinerPage = () => {
       <Navbar />
       <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background pt-24 pb-16">
         <div className="container mx-auto px-4">
-          {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -79,7 +71,6 @@ const KulinerPage = () => {
             </p>
           </motion.div>
 
-          {/* Search & Filter */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -98,10 +89,13 @@ const KulinerPage = () => {
             </div>
 
             <div className="flex gap-4">
-              <Select value={categoryFilter} onValueChange={(val) => {
-                setCategoryFilter(val);
-                setPage(1);
-              }}>
+              <Select
+                value={categoryFilter}
+                onValueChange={(val) => {
+                  setCategoryFilter(val);
+                  setPage(1);
+                }}
+              >
                 <SelectTrigger className="w-[200px] py-6">
                   <Filter className="mr-2 size-4" />
                   <SelectValue placeholder="Semua Kategori" />
@@ -109,7 +103,10 @@ const KulinerPage = () => {
                 <SelectContent>
                   <SelectItem value="all">Semua Kategori</SelectItem>
                   {categories.map((cat) => (
-                    <SelectItem key={cat.id_category} value={String(cat.id_category)}>
+                    <SelectItem
+                      key={cat.id_category}
+                      value={String(cat.id_category)}
+                    >
                       {cat.nama_category}
                     </SelectItem>
                   ))}
@@ -118,7 +115,6 @@ const KulinerPage = () => {
             </div>
           </motion.div>
 
-          {/* Kuliner Grid */}
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {Array.from({ length: 8 }).map((_, i) => (
@@ -207,7 +203,6 @@ const KulinerPage = () => {
             </motion.div>
           )}
 
-          {/* Pagination */}
           {!isLoading && kulinerData.length > 0 && (
             <motion.div
               initial={{ opacity: 0 }}

@@ -55,7 +55,46 @@ export const AuthMe = async () => {
   };
 };
 
-// export const AuthRegister = async (payload) => {};
+export const AuthRegister = async (payload) => {
+  const { username, email, password } = payload;
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
+
+  if (error) {
+    return {
+      status: false,
+      message: error.message || "Terjadi Kesalahan",
+    };
+  }
+
+  const userId = data?.user?.id;
+
+  if (userId) {
+    const { error: profileError } = await supabase.from("profile").insert([
+      {
+        id: userId,
+        username: username,
+      },
+    ]);
+
+    if (profileError) {
+      console.error("Gagal menambahkan ke tabel profile:", profileError);
+      return {
+        status: false,
+        message: "Gagal menambahkan data profile",
+      };
+    }
+  }
+
+  return {
+    status: true,
+    message: "Berhasil Register Silahkan Login Kembali",
+    data: data,
+  };
+};
 
 export const AuthLogout = async () => {
   const { error } = await supabase.auth.signOut();

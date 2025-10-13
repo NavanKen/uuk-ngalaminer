@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
 import { motion } from "motion/react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router";
 import { MapPin, ArrowLeft } from "lucide-react";
 import Navbar from "../../components/ui/navbar";
@@ -16,23 +16,21 @@ const LokasiDetailPage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    const fetchLokasiDetail = async () => {
+      setIsLoading(true);
+      const res = await getLokasiById(id);
+
+      if (res.status && res.data) {
+        setLokasi(res.data);
+        const kulinerRes = await getKulinerByLokasi(id);
+        if (kulinerRes.status) {
+          setKulinerList(kulinerRes.data);
+        }
+      }
+      setIsLoading(false);
+    };
     fetchLokasiDetail();
   }, [id]);
-
-  const fetchLokasiDetail = async () => {
-    setIsLoading(true);
-    const res = await getLokasiById(id);
-
-    if (res.status && res.data) {
-      setLokasi(res.data);
-      // Fetch kuliner from this location
-      const kulinerRes = await getKulinerByLokasi(id);
-      if (kulinerRes.status) {
-        setKulinerList(kulinerRes.data);
-      }
-    }
-    setIsLoading(false);
-  };
 
   const formatRupiah = (angka) => {
     return new Intl.NumberFormat("id-ID", {
@@ -88,7 +86,6 @@ const LokasiDetailPage = () => {
       <Navbar />
       <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background pt-24 pb-16">
         <div className="container mx-auto px-4">
-          {/* Back Button */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -102,7 +99,6 @@ const LokasiDetailPage = () => {
             </Link>
           </motion.div>
 
-          {/* Hero Image */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -127,7 +123,6 @@ const LokasiDetailPage = () => {
             </div>
           </motion.div>
 
-          {/* Description */}
           {lokasi.deskripsi_daerah && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -142,7 +137,6 @@ const LokasiDetailPage = () => {
             </motion.div>
           )}
 
-          {/* Kuliner from this location */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -151,7 +145,7 @@ const LokasiDetailPage = () => {
             <h2 className="text-2xl font-bold mb-6">
               Rekomendasi Kuliner dari Lokasi Ini
             </h2>
-            
+
             {kulinerList.length === 0 ? (
               <div className="bg-card p-12 rounded-xl border text-center">
                 <p className="text-muted-foreground">

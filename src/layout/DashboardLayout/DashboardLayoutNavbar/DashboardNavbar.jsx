@@ -24,7 +24,6 @@ const DashboardNavbar = ({ toggleMenu }) => {
   const handleLogout = async () => {
     try {
       await logout();
-      toast.success("Berhasil logout");
       navigate("/auth/login");
     } catch (error) {
       toast.error("Gagal logout");

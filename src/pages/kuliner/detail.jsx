@@ -1,20 +1,12 @@
-import { useState, useEffect } from "react";
 import { motion } from "motion/react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router";
-import {
-  MapPin,
-  Calendar,
-  User,
-  ArrowLeft,
-  Tag,
-  DollarSign,
-} from "lucide-react";
+import { MapPin, Calendar, User, ArrowLeft } from "lucide-react";
 import Navbar from "../../components/ui/navbar";
 import Footer from "../../components/ui/footer";
-import { 
-  getKulinerById, 
+import {
+  getKulinerById,
   getAllKulinerPublic,
-  subscribeKuliner 
 } from "../../service/kuliner.service";
 import { Button } from "../../components/ui/button";
 
@@ -26,98 +18,43 @@ const KulinerDetailPage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    const fetchKulinerDetail = async () => {
+      setIsLoading(true);
+      const res = await getKulinerById(id);
+
+      if (res.status && res.data) {
+        setKuliner(res.data);
+
+        let relatedRes;
+
+        if (res.data.id_category) {
+          relatedRes = await getAllKulinerPublic({
+            categoryId: res.data.id_category,
+            limit: 10,
+          });
+        }
+
+        if (
+          !relatedRes?.status ||
+          !relatedRes?.data ||
+          relatedRes.data.length <= 1
+        ) {
+          relatedRes = await getAllKulinerPublic({
+            limit: 10,
+          });
+        }
+
+        if (relatedRes.status && relatedRes.data) {
+          const filtered = relatedRes.data.filter(
+            (k) => k.id_kuliner !== parseInt(id)
+          );
+          setRelatedKuliner(filtered.slice(0, 3));
+        }
+      }
+      setIsLoading(false);
+    };
     fetchKulinerDetail();
   }, [id]);
-
-  // Real-time subscription
-  useEffect(() => {
-    const unsub = subscribeKuliner(async (payload) => {
-      switch (payload.eventType) {
-        case "UPDATE": {
-          const updated = payload.new;
-          
-          // Update current kuliner if it's the one being viewed
-          if (updated.id_kuliner === parseInt(id)) {
-            const fullDataRes = await getKulinerById(updated.id_kuliner);
-            if (fullDataRes.status && fullDataRes.data) {
-              setKuliner(fullDataRes.data);
-            }
-          }
-          
-          // Update related kuliner if it's in the list
-          setRelatedKuliner((prev) =>
-            prev.map((item) =>
-              item.id_kuliner === updated.id_kuliner
-                ? { ...item, ...updated }
-                : item
-            )
-          );
-          break;
-        }
-
-        case "DELETE": {
-          const deleted = payload.old;
-          
-          // Remove from related if deleted
-          setRelatedKuliner((prev) =>
-            prev.filter((item) => item.id_kuliner !== deleted.id_kuliner)
-          );
-          break;
-        }
-
-        case "INSERT": {
-          const newData = payload.new;
-          
-          // Add to related if same category and not current item
-          if (kuliner && newData.id_category === kuliner.id_category && newData.id_kuliner !== parseInt(id)) {
-            const fullDataRes = await getKulinerById(newData.id_kuliner);
-            if (fullDataRes.status && fullDataRes.data) {
-              setRelatedKuliner((prev) => [fullDataRes.data, ...prev].slice(0, 3));
-            }
-          }
-          break;
-        }
-      }
-    });
-
-    return () => unsub();
-  }, [id, kuliner]);
-
-  const fetchKulinerDetail = async () => {
-    setIsLoading(true);
-    const res = await getKulinerById(id);
-
-    if (res.status && res.data) {
-      setKuliner(res.data);
-      
-      // Fetch related kuliner - prioritize same category, fallback to all
-      let relatedRes;
-      
-      if (res.data.id_category) {
-        // Try to get from same category first
-        relatedRes = await getAllKulinerPublic({
-          categoryId: res.data.id_category,
-          limit: 10,
-        });
-      }
-      
-      // If no results from same category, get random kuliner
-      if (!relatedRes?.status || !relatedRes?.data || relatedRes.data.length <= 1) {
-        relatedRes = await getAllKulinerPublic({
-          limit: 10,
-        });
-      }
-      
-      if (relatedRes.status && relatedRes.data) {
-        // Filter out current kuliner
-        const filtered = relatedRes.data.filter(
-          (k) => k.id_kuliner !== parseInt(id)
-        );
-        setRelatedKuliner(filtered.slice(0, 3));
-      }
-    }
-    setIsLoading(false);
-  };
 
   const formatRupiah = (angka) => {
     return new Intl.NumberFormat("id-ID", {
@@ -183,7 +120,6 @@ const KulinerDetailPage = () => {
       <Navbar />
       <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background pt-24 pb-16">
         <div className="container mx-auto px-4">
-          {/* Back Button */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -198,7 +134,6 @@ const KulinerDetailPage = () => {
           </motion.div>
 
           <div className="grid lg:grid-cols-2 gap-8 mb-12">
-            {/* Image */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -211,7 +146,6 @@ const KulinerDetailPage = () => {
               />
             </motion.div>
 
-            {/* Info */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -293,7 +227,6 @@ const KulinerDetailPage = () => {
             </motion.div>
           </div>
 
-          {/* Description */}
           {kuliner.deskripsi && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -308,16 +241,13 @@ const KulinerDetailPage = () => {
             </motion.div>
           )}
 
-          {/* Related Kuliner */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <h2 className="text-2xl font-bold mb-6">
-              Lihat Kuliner Lainnya
-            </h2>
-            
+            <h2 className="text-2xl font-bold mb-6">Lihat Kuliner Lainnya</h2>
+
             {relatedKuliner.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {relatedKuliner.map((item) => (

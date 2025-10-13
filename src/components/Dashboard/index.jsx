@@ -20,6 +20,7 @@ import {
   updatePassword,
   updateEmail,
 } from "../../service/profile.service";
+import { supabase } from "../../lib/supabase/client";
 
 const Dashboard = () => {
   const { authUser: user, setUser } = useAuthStore();
@@ -72,6 +73,40 @@ const Dashboard = () => {
     setAvatarPreview(null);
   };
 
+  // const handleUpdateProfile = async (e) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+
+  //   try {
+  //     let avatarUrl = user.avatar_url;
+
+  //     if (avatarFile) {
+  //       avatarUrl = await uploadAvatar(avatarFile, user.avatar_url);
+  //     } else if (!avatarPreview) {
+  //       avatarUrl = null;
+  //     }
+
+  //     const res = await updateProfile(user.id, {
+  //       ...formData,
+  //       avatar_url: avatarUrl,
+  //       role: user.role,
+  //     });
+
+  //     if (res.status) {
+  //       setUser({ ...user, ...res.data });
+  //       toast.success("Profile berhasil diupdate");
+  //       setAvatarFile(null);
+  //     } else {
+  //       toast.error(res.error?.message || "Gagal mengupdate profile");
+  //     }
+  //   } catch (error) {
+  //     toast.error("Terjadi kesalahan");
+  //     console.error(error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -81,7 +116,22 @@ const Dashboard = () => {
 
       if (avatarFile) {
         avatarUrl = await uploadAvatar(avatarFile, user.avatar_url);
-      } else if (!avatarPreview) {
+      } else if (!avatarPreview && user.avatar_url) {
+        const oldPath = user.avatar_url.replace(
+          `${
+            import.meta.env.VITE_SUPABASE_URL
+          }/storage/v1/object/public/ngalaminer-buckets/`,
+          ""
+        );
+
+        const { error: deleteError } = await supabase.storage
+          .from("ngalaminer-buckets")
+          .remove([oldPath]);
+
+        if (deleteError) {
+          console.error("Gagal menghapus avatar lama:", deleteError);
+        }
+
         avatarUrl = null;
       }
 
@@ -99,8 +149,8 @@ const Dashboard = () => {
         toast.error(res.error?.message || "Gagal mengupdate profile");
       }
     } catch (error) {
-      toast.error("Terjadi kesalahan");
       console.error(error);
+      toast.error("Terjadi kesalahan");
     } finally {
       setIsLoading(false);
     }
@@ -243,7 +293,6 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Phone */}
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone</Label>
                 <div className="relative">

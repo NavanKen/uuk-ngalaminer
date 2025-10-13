@@ -2,22 +2,41 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, User, Lock, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-// import { useAuthStore } from "@/store/authStore";
 import { useState } from "react";
 import { Link } from "react-router";
+import { toast } from "sonner";
+import { useAuthStore } from "../../store/useAuthStore";
+import { useNavigate } from "react-router";
 
 const RegisterPages = () => {
   const [credential, setCredential] = useState({
-    identifier: "",
+    username: "",
+    email: "",
     password: "",
+    confirmPassword: "",
   });
+  const navigate = useNavigate();
+  const { signUp, isSigningUp } = useAuthStore();
 
-  const [isLoggingIn, setIsLogin] = useState();
-  //   const { signIn, isLoggingIn } = useAuthStore();
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // signIn(credential);
+    if (!credential.username) return toast.error("Harap Isi Username");
+    if (!credential.email) return toast.error("Harap Isi Email");
+    if (!credential.password) return toast.error("Harap Isi Password");
+    if (!credential.confirmPassword)
+      return toast.error("Harap Isi Konfirmasi Password");
+    if (credential.password !== credential.confirmPassword)
+      return toast.error("Password Dan Konfirmasi Password");
+
+    const payload = {
+      username: credential.username,
+      email: credential.email,
+      password: credential.password,
+    };
+
+    const user = await signUp(payload);
+
+    if (user) navigate("/auth/login");
   };
 
   return (
@@ -36,10 +55,35 @@ const RegisterPages = () => {
                   Buat Akun Baru
                 </h1>
                 <p className="text-gray-500 text-md text-center">
-                  Masukkan email dan password anda untuk membuat akun
+                  Masukkan Data untuk mendaftar
                 </p>
               </div>
               <form className="w-full space-y-5" onSubmit={handleSubmit}>
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="username"
+                    className="text-sm font-medium text-slate-700"
+                  >
+                    Username
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      id="username"
+                      type="username"
+                      name="identifier"
+                      placeholder="Masukkan Alamat Username"
+                      value={credential.username}
+                      onChange={(e) =>
+                        setCredential({
+                          ...credential,
+                          username: e.target.value,
+                        })
+                      }
+                      className="pl-12 h-12 bg-gray-50 border-0 text-card-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                    />
+                  </div>
+                </div>
                 <div className="space-y-2">
                   <Label
                     htmlFor="email"
@@ -54,21 +98,20 @@ const RegisterPages = () => {
                       type="email"
                       name="identifier"
                       placeholder="Masukkan Alamat Email"
-                      value={credential.identifier}
+                      value={credential.email}
                       onChange={(e) =>
                         setCredential({
                           ...credential,
-                          identifier: e.target.value,
+                          email: e.target.value,
                         })
                       }
                       className="pl-12 h-12 bg-gray-50 border-0 text-card-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-                      required
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label
-                    htmlFor="email"
+                    htmlFor="password"
                     className="text-sm font-medium text-slate-700"
                   >
                     Password
@@ -88,28 +131,53 @@ const RegisterPages = () => {
                         })
                       }
                       className="pl-12 h-12 bg-gray-50 border-0 text-card-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-                      required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="confirmPassword"
+                    className="text-sm font-medium text-slate-700"
+                  >
+                    Konfirmasi Password
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      name="confirmPassword"
+                      placeholder="Masukkan Password"
+                      value={credential.confirmPassword}
+                      onChange={(e) =>
+                        setCredential({
+                          ...credential,
+                          confirmPassword: e.target.value,
+                        })
+                      }
+                      className="pl-12 h-12 bg-gray-50 border-0 text-card-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
                     />
                   </div>
                 </div>
                 <div className="mb-3">
                   <Button
                     type="submit"
+                    disabled={isSigningUp ? true : false}
                     className="bg-gradient-to-br from-orange-400 to-orange-600 w-full py-5 rounded-xl text-md text-neutral-100 cursor-pointer hover:bg-gradient-to-br hover:from-orange-400 hover:to-orange-600 transition duration-200"
                   >
-                    {isLoggingIn ? (
+                    {isSigningUp ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
-                        Loading...
+                        Membuat Akun...
                       </>
                     ) : (
-                      "Sign In"
+                      "Daftar"
                     )}
                   </Button>
                 </div>
                 <p className="text-center text-gray-500 text-sm">
                   Sudah Punya Akun ?{" "}
-                  <Link to={"/auth/register"} className="text-orange-500">
+                  <Link to={"/auth/login"} className="text-orange-500">
                     Masuk Sekarang
                   </Link>
                 </p>

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -25,6 +24,7 @@ import {
   updateProfile,
   uploadAvatar,
 } from "../../../../service/profile.service";
+import { supabase } from "../../../../lib/supabase/client";
 
 const EditDialog = ({ data }) => {
   const [open, setOpen] = useState(false);
@@ -39,7 +39,7 @@ const EditDialog = ({ data }) => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (open && data) {
       setFormData({
         username: data.username || "",
         phone: data.phone || "",
@@ -47,8 +47,9 @@ const EditDialog = ({ data }) => {
         role: data.role || "user",
       });
       setAvatarPreview(data.avatar_url);
+      setAvatarFile(null);
     }
-  }, [data]);
+  }, [open, data]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -72,6 +73,39 @@ const EditDialog = ({ data }) => {
     setAvatarPreview(null);
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+
+  //   try {
+  //     let avatarUrl = data.avatar_url;
+
+  //     if (avatarFile) {
+  //       avatarUrl = await uploadAvatar(avatarFile, data.avatar_url);
+  //     } else if (!avatarPreview) {
+  //       avatarUrl = null;
+  //     }
+
+  //     const res = await updateProfile(data.id, {
+  //       ...formData,
+  //       avatar_url: avatarUrl,
+  //     });
+
+  //     if (res.status) {
+  //       toast.success("Profile berhasil diupdate");
+  //       setOpen(false);
+  //       setAvatarFile(null);
+  //     } else {
+  //       toast.error(res.error?.message || "Gagal mengupdate profile");
+  //     }
+  //   } catch (error) {
+  //     toast.error("Terjadi kesalahan");
+  //     console.error(error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -81,7 +115,14 @@ const EditDialog = ({ data }) => {
 
       if (avatarFile) {
         avatarUrl = await uploadAvatar(avatarFile, data.avatar_url);
-      } else if (!avatarPreview) {
+      } else if (!avatarPreview && data.avatar_url) {
+        const oldPath = data.avatar_url.replace(
+          `${
+            import.meta.env.VITE_SUPABASE_URL
+          }/storage/v1/object/public/ngalaminer-buckets/`,
+          ""
+        );
+        await supabase.storage.from("ngalaminer-buckets").remove([oldPath]);
         avatarUrl = null;
       }
 
@@ -98,8 +139,8 @@ const EditDialog = ({ data }) => {
         toast.error(res.error?.message || "Gagal mengupdate profile");
       }
     } catch (error) {
-      toast.error("Terjadi kesalahan");
       console.error(error);
+      toast.error("Terjadi kesalahan");
     } finally {
       setIsLoading(false);
     }

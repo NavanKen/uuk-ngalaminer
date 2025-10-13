@@ -18,16 +18,14 @@ const LokasiPage = () => {
 
   const totalPages = Math.ceil(total / limit);
 
-  // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {
     fetchLokasi();
-  }, [search, page]);
+  }, [search, page, fetchLokasi]);
 
-  // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
       setSearch(searchInput);
@@ -72,7 +70,6 @@ const LokasiPage = () => {
             </p>
           </motion.div>
 
-          {/* Search */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -91,7 +88,6 @@ const LokasiPage = () => {
             </div>
           </motion.div>
 
-          {/* Lokasi Grid */}
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: 6 }).map((_, i) => (
@@ -168,7 +164,6 @@ const LokasiPage = () => {
             </motion.div>
           )}
 
-          {/* Pagination */}
           {!isLoading && lokasiData.length > 0 && (
             <motion.div
               initial={{ opacity: 0 }}

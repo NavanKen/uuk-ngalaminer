@@ -14,12 +14,16 @@ const LoginPages = () => {
   });
   const { login, isLoggingIn } = useAuthStore();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!credential.email) return toast.error("Harap Isi Email");
     if (!credential.password) return toast.error("Harap Isi Password");
 
-    login(credential);
+    const user = await login(credential);
+
+    if (user) {
+      window.location.href = "/dashboard";
+    }
   };
 
   return (

@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase/client";
 import { supabaseAdmin } from "../lib/supabase/admin";
+import { environment } from "../lib/config/environment";
 
 // Real-time subscription
 export const subscribeProfile = (callback) => {
@@ -69,14 +70,15 @@ export const getProfileById = async (id) => {
 export const createProfile = async (profileData) => {
   try {
     // 1. Create auth user
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-      email: profileData.email,
-      password: profileData.password,
-      email_confirm: true,
-      user_metadata: {
-        username: profileData.username,
-      },
-    });
+    const { data: authData, error: authError } =
+      await supabaseAdmin.auth.admin.createUser({
+        email: profileData.email,
+        password: profileData.password,
+        email_confirm: true,
+        user_metadata: {
+          username: profileData.username,
+        },
+      });
 
     if (authError) {
       return { status: false, error: authError };
@@ -130,10 +132,25 @@ export const updateProfile = async (id, profileData) => {
   return { status: true, data };
 };
 
-// Delete profile and auth user
 export const deleteProfile = async (id) => {
   try {
-    // 1. Delete profile
+    const { data: imageData } = await supabase
+      .from("profile")
+      .select("avatar_url")
+      .eq("id", id)
+      .single();
+
+    const img = imageData?.avatar_url;
+    const supabaseUrl = environment.SUPABASE_URL;
+
+    if (img) {
+      const oldImage = img.replace(
+        `${supabaseUrl}/storage/v1/object/public/ngalaminer-buckets/`,
+        ""
+      );
+      await supabase.storage.from("ngalaminer-buckets").remove([oldImage]);
+    }
+
     const { error: profileError } = await supabase
       .from("profile")
       .delete()
@@ -143,12 +160,10 @@ export const deleteProfile = async (id) => {
       return { status: false, error: profileError };
     }
 
-    // 2. Delete auth user
     const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(id);
 
     if (authError) {
       console.error("Failed to delete auth user:", authError);
-      // Don't return error here, profile is already deleted
     }
 
     return { status: true };
@@ -157,7 +172,6 @@ export const deleteProfile = async (id) => {
   }
 };
 
-// Update password
 export const updatePassword = async (userId, newPassword) => {
   try {
     const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
@@ -174,7 +188,6 @@ export const updatePassword = async (userId, newPassword) => {
   }
 };
 
-// Update email
 export const updateEmail = async (userId, newEmail) => {
   try {
     const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
@@ -192,15 +205,17 @@ export const updateEmail = async (userId, newEmail) => {
   }
 };
 
-// Upload avatar
 export const uploadAvatar = async (file, oldAvatar) => {
   const fileExt = file.name.split(".").pop();
   const fileName = `${Date.now()}.${fileExt}`;
   const filePath = `avatars/${fileName}`;
 
   if (oldAvatar) {
+    console.log("iki onok");
     const oldPath = oldAvatar.replace(
-      `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/ngalaminer-buckets/`,
+      `${
+        import.meta.env.VITE_SUPABASE_URL
+      }/storage/v1/object/public/ngalaminer-buckets/`,
       ""
     );
     await supabase.storage.from("ngalaminer-buckets").remove([oldPath]);
@@ -217,4 +232,46 @@ export const uploadAvatar = async (file, oldAvatar) => {
   } = supabase.storage.from("ngalaminer-buckets").getPublicUrl(filePath);
 
   return publicUrl;
+};
+
+export const removeAvatar = async (id) => {
+  try {
+    const { data: profile, error: profileError } = await supabase
+      .from("profile")
+      .select("avatar_url")
+      .eq("id", id)
+      .single();
+
+    if (profileError) throw profileError;
+
+    const img = profile?.avatar_url;
+    if (!img) {
+      await supabase.from("profile").update({ avatar_url: null }).eq("id", id);
+      return { status: true };
+    }
+
+    const supabaseUrl = environment.SUPABASE_URL;
+    const filePath = img.replace(
+      `${supabaseUrl}/storage/v1/object/public/ngalaminer-buckets/`,
+      ""
+    );
+
+    const { error: storageError } = await supabase.storage
+      .from("ngalaminer-buckets")
+      .remove([filePath]);
+
+    if (storageError) throw storageError;
+
+    const { error: updateError } = await supabase
+      .from("profile")
+      .update({ avatar_url: null })
+      .eq("id", id);
+
+    if (updateError) throw updateError;
+
+    return { status: true };
+  } catch (error) {
+    console.error("Gagal menghapus avatar:", error);
+    return { status: false, error };
+  }
 };
