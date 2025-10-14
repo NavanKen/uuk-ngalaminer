@@ -21,6 +21,7 @@ import {
   updateEmail,
 } from "../../service/profile.service";
 import { supabase } from "../../lib/supabase/client";
+import { environment } from "../../lib/config/environment";
 
 const Dashboard = () => {
   const { authUser: user, setUser } = useAuthStore();
@@ -118,9 +119,7 @@ const Dashboard = () => {
         avatarUrl = await uploadAvatar(avatarFile, user.avatar_url);
       } else if (!avatarPreview && user.avatar_url) {
         const oldPath = user.avatar_url.replace(
-          `${
-            import.meta.env.VITE_SUPABASE_URL
-          }/storage/v1/object/public/ngalaminer-buckets/`,
+          `${environment.SUPABASE_URL}/storage/v1/object/public/ngalaminer-buckets/`,
           ""
         );
 
@@ -200,7 +199,6 @@ const Dashboard = () => {
 
     try {
       const res = await updateEmail(user.id, emailData.newEmail);
-
       if (res.status) {
         setUser({ ...user, email: emailData.newEmail });
         toast.success("Email berhasil diupdate");

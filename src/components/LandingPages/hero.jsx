@@ -1,6 +1,7 @@
+/* eslint-disable no-unused-vars */
+import { motion } from "motion/react";
 import { ChefHat } from "lucide-react";
 import { Link } from "react-router";
-import { motion } from "motion/react";
 
 const Hero = () => {
   return (

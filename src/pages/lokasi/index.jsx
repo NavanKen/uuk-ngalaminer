@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
 import { motion } from "motion/react";
+import { useState, useEffect } from "react";
 import { Search, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { Link } from "react-router";
 import Navbar from "../../components/ui/navbar";

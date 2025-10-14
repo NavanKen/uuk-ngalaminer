@@ -41,6 +41,9 @@ const CreateDialog = () => {
     id_lokasi: "",
     harga: "",
     deskripsi: "",
+    detail_address: "",
+    jam_buka: "",
+    jam_tutup: "",
     file: null,
   });
 
@@ -52,6 +55,9 @@ const CreateDialog = () => {
         id_lokasi: "",
         harga: "",
         deskripsi: "",
+        detail_address: "",
+        jam_buka: "",
+        jam_tutup: "",
         file: null,
       });
       setPreview(null);
@@ -65,26 +71,15 @@ const CreateDialog = () => {
       getAllLokasi(),
     ]);
 
-    if (kategoriRes.status) {
-      setKategoriList(kategoriRes.data);
-    }
-
-    if (lokasiRes.status) {
-      setLokasiList(lokasiRes.data);
-    }
+    if (kategoriRes.status) setKategoriList(kategoriRes.data);
+    if (lokasiRes.status) setLokasiList(lokasiRes.data);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.file) {
-      toast.error("Harap Masukkan file/gambar");
-      return;
-    }
-
-    if (!formData.id_category || !formData.id_lokasi) {
-      toast.error("Harap pilih kategori dan lokasi");
-      return;
-    }
+    if (!formData.file) return toast.error("Harap Masukkan file/gambar");
+    if (!formData.id_category || !formData.id_lokasi)
+      return toast.error("Harap pilih kategori dan lokasi");
 
     setIsLoading(true);
 
@@ -94,6 +89,9 @@ const CreateDialog = () => {
       id_lokasi: parseInt(formData.id_lokasi),
       harga: parseFloat(formData.harga),
       deskripsi: formData.deskripsi,
+      detail_address: formData.detail_address,
+      jam_buka: formData.jam_buka,
+      jam_tutup: formData.jam_tutup,
       file: formData.file,
       id_profile: authUser?.id,
     };
@@ -114,21 +112,14 @@ const CreateDialog = () => {
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      setFormData((prev) => ({
-        ...prev,
-        file,
-      }));
-      const url = URL.createObjectURL(file);
-      setPreview(url);
+      setFormData((prev) => ({ ...prev, file }));
+      setPreview(URL.createObjectURL(file));
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -138,18 +129,21 @@ const CreateDialog = () => {
           Buat
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+
+      <DialogContent className="sm:max-w-[600px] max-h-[100vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Buat Kuliner Baru</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} encType="multipart/form-data">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Nama Kuliner
-              </label>
+
+        <form
+          onSubmit={handleSubmit}
+          encType="multipart/form-data"
+          className="space-y-4"
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Nama Kuliner</label>
               <Input
-                className="py-5"
                 name="nama_kuliner"
                 placeholder="Masukkan nama kuliner"
                 value={formData.nama_kuliner}
@@ -158,12 +152,21 @@ const CreateDialog = () => {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Kategori
-              </label>
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Harga</label>
+              <Input
+                type="number"
+                name="harga"
+                placeholder="Masukkan harga"
+                value={formData.harga}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Kategori</label>
               <Select
-                name="id_category"
                 value={formData.id_category}
                 onValueChange={(value) =>
                   handleChange({ target: { name: "id_category", value } })
@@ -188,10 +191,9 @@ const CreateDialog = () => {
               </Select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Lokasi</label>
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Lokasi</label>
               <Select
-                name="id_lokasi"
                 value={formData.id_lokasi}
                 onValueChange={(value) =>
                   handleChange({ target: { name: "id_lokasi", value } })
@@ -216,44 +218,62 @@ const CreateDialog = () => {
               </Select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Harga</label>
-              <Input
-                className="py-5"
-                type="number"
-                name="harga"
-                placeholder="Masukkan harga"
-                value={formData.harga}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Deskripsi
-              </label>
+            <div className="grid gap-2 sm:col-span-2">
+              <label className="text-sm font-medium">Deskripsi</label>
               <Textarea
-                className="resize-none"
                 name="deskripsi"
                 placeholder="Masukkan deskripsi kuliner"
                 value={formData.deskripsi}
                 onChange={handleChange}
+                className="resize-none"
+                rows={2}
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Gambar Kuliner
-              </label>
+            <div className="grid gap-2 sm:col-span-2">
+              <label className="text-sm font-medium">Detail Alamat</label>
+              <Textarea
+                name="detail_address"
+                placeholder="Contoh: Dekat masjid Al-Falah, sebelah kiri toko roti"
+                value={formData.detail_address}
+                onChange={handleChange}
+                className="resize-none"
+                rows={2}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Jam Buka</label>
+              <Input
+                type="time"
+                name="jam_buka"
+                value={formData.jam_buka}
+                onChange={handleChange}
+                step="60"
+                className="[&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Jam Tutup</label>
+              <Input
+                type="time"
+                name="jam_tutup"
+                value={formData.jam_tutup}
+                onChange={handleChange}
+                step="60"
+                className="[&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+              />
+            </div>
+
+            <div className="grid gap-2 sm:col-span-2">
+              <label className="text-sm font-medium">Gambar Kuliner</label>
               <div className="flex items-center gap-4">
                 {preview ? (
                   <img
                     src={preview}
                     alt="Preview"
-                    width={160}
-                    height={60}
-                    className="rounded-md object-cover"
+                    className="w-[160px] h-[60px] object-cover rounded-md"
                   />
                 ) : (
                   <div className="w-[160px] h-[60px] flex items-center justify-center rounded-md border border-dashed">
@@ -278,7 +298,7 @@ const CreateDialog = () => {
               Batal
             </Button>
 
-            <Button type="submit" disabled={isLoading ? true : false}>
+            <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

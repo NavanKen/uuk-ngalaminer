@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { motion } from "motion/react";
 import GridKulinerLayout from "./ui/grid";
 

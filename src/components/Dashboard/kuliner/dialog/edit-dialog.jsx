@@ -34,14 +34,18 @@ const EditDialog = ({ data }) => {
   const [preview, setPreview] = useState(data.gambar);
   const [kategoriList, setKategoriList] = useState([]);
   const [lokasiList, setLokasiList] = useState([]);
+
   const [formData, setFormData] = useState({
     nama_kuliner: data.nama_kuliner || "",
     id_category: data.id_category ? String(data.id_category) : "",
     id_lokasi: data.id_lokasi ? String(data.id_lokasi) : "",
     harga: data.harga || "",
     deskripsi: data.deskripsi || "",
-    gambar: data.gambar || "",
+    detail_address: data.detail_address || "",
+    jam_buka: data.jam_buka || "",
+    jam_tutup: data.jam_tutup || "",
     file: null,
+    gambar: data.gambar || "",
   });
 
   useEffect(() => {
@@ -52,8 +56,11 @@ const EditDialog = ({ data }) => {
         id_lokasi: data.id_lokasi ? String(data.id_lokasi) : "",
         harga: data.harga || "",
         deskripsi: data.deskripsi || "",
-        gambar: data.gambar || "",
+        detail_address: data.detail_address || "",
+        jam_buka: data.jam_buka || "",
+        jam_tutup: data.jam_tutup || "",
         file: null,
+        gambar: data.gambar || "",
       });
       setPreview(data.gambar || null);
       fetchKategoriAndLokasi();
@@ -65,14 +72,8 @@ const EditDialog = ({ data }) => {
       getAllKategori(),
       getAllLokasi(),
     ]);
-
-    if (kategoriRes.status) {
-      setKategoriList(kategoriRes.data);
-    }
-
-    if (lokasiRes.status) {
-      setLokasiList(lokasiRes.data);
-    }
+    if (kategoriRes.status) setKategoriList(kategoriRes.data);
+    if (lokasiRes.status) setLokasiList(lokasiRes.data);
   };
 
   const handleSubmit = async (e) => {
@@ -85,24 +86,27 @@ const EditDialog = ({ data }) => {
       try {
         imageUrl = await uploadFile(formData.file, data.gambar);
       } catch (err) {
-        toast.error("Upload Gagal");
+        toast.error("Upload gambar gagal");
         console.error("Upload gagal:", err.message);
         setIsLoading(false);
         return;
       }
     }
 
-    const inserData = {
+    const updateData = {
       id_kuliner: data.id,
       nama_kuliner: formData.nama_kuliner,
       id_category: parseInt(formData.id_category),
       id_lokasi: parseInt(formData.id_lokasi),
       harga: parseFloat(formData.harga),
       deskripsi: formData.deskripsi,
+      detail_address: formData.detail_address,
+      jam_buka: formData.jam_buka,
+      jam_tutup: formData.jam_tutup,
       gambar: imageUrl,
     };
 
-    const res = await KulinerEdit(inserData);
+    const res = await KulinerEdit(updateData);
 
     if (!res.status) {
       toast.error(res.pesan);
@@ -118,21 +122,14 @@ const EditDialog = ({ data }) => {
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      setFormData((prev) => ({
-        ...prev,
-        file,
-      }));
-      const url = URL.createObjectURL(file);
-      setPreview(url);
+      setFormData((prev) => ({ ...prev, file }));
+      setPreview(URL.createObjectURL(file));
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -140,18 +137,21 @@ const EditDialog = ({ data }) => {
       <DialogTrigger asChild>
         <EditIcon className="w-5 h-5 cursor-pointer" />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+
+      <DialogContent className="sm:max-w-[600px] max-h-[100vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Kuliner</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} encType="multipart/form-data">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Nama Kuliner
-              </label>
+
+        <form
+          onSubmit={handleSubmit}
+          encType="multipart/form-data"
+          className="space-y-4"
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Nama Kuliner</label>
               <Input
-                className="py-5"
                 name="nama_kuliner"
                 placeholder="Masukkan nama kuliner"
                 value={formData.nama_kuliner}
@@ -160,12 +160,21 @@ const EditDialog = ({ data }) => {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Kategori
-              </label>
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Harga</label>
+              <Input
+                type="number"
+                name="harga"
+                placeholder="Masukkan harga"
+                value={formData.harga}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Kategori</label>
               <Select
-                name="id_category"
                 value={formData.id_category}
                 onValueChange={(value) =>
                   handleChange({ target: { name: "id_category", value } })
@@ -190,10 +199,9 @@ const EditDialog = ({ data }) => {
               </Select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Lokasi</label>
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Lokasi</label>
               <Select
-                name="id_lokasi"
                 value={formData.id_lokasi}
                 onValueChange={(value) =>
                   handleChange({ target: { name: "id_lokasi", value } })
@@ -218,44 +226,61 @@ const EditDialog = ({ data }) => {
               </Select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Harga</label>
-              <Input
-                className="py-5"
-                type="number"
-                name="harga"
-                placeholder="Masukkan harga"
-                value={formData.harga}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Deskripsi
-              </label>
+            <div className="grid gap-2 sm:col-span-2">
+              <label className="text-sm font-medium">Deskripsi</label>
               <Textarea
-                className="resize-none"
                 name="deskripsi"
                 placeholder="Masukkan deskripsi kuliner"
                 value={formData.deskripsi}
                 onChange={handleChange}
+                className="resize-none"
+                rows={2}
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Gambar Kuliner
-              </label>
+            {/* Detail Address */}
+            <div className="grid gap-2 sm:col-span-2">
+              <label className="text-sm font-medium">Detail Alamat</label>
+              <Textarea
+                name="detail_address"
+                placeholder="Contoh: Dekat masjid Al-Falah, sebelah kiri toko roti"
+                value={formData.detail_address}
+                onChange={handleChange}
+                className="resize-none"
+                rows={2}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Jam Buka</label>
+              <Input
+                type="time"
+                name="jam_buka"
+                value={formData.jam_buka}
+                onChange={handleChange}
+                step="60"
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Jam Tutup</label>
+              <Input
+                type="time"
+                name="jam_tutup"
+                value={formData.jam_tutup}
+                onChange={handleChange}
+                step="60"
+              />
+            </div>
+
+            <div className="grid gap-2 sm:col-span-2">
+              <label className="text-sm font-medium">Gambar Kuliner</label>
               <div className="flex items-center gap-4">
                 {preview ? (
                   <img
                     src={preview}
                     alt="Preview"
-                    width={160}
-                    height={60}
-                    className="rounded-md object-cover"
+                    className="w-[160px] h-[60px] object-cover rounded-md"
                   />
                 ) : (
                   <div className="w-[160px] h-[60px] flex items-center justify-center rounded-md border border-dashed">
@@ -279,12 +304,10 @@ const EditDialog = ({ data }) => {
             >
               Batal
             </Button>
-
-            <Button type="submit" disabled={isLoading ? true : false}>
+            <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Memuat...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Memuat...
                 </>
               ) : (
                 "Simpan"

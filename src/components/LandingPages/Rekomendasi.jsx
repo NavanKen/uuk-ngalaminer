@@ -1,7 +1,8 @@
+/* eslint-disable no-unused-vars */
+import { motion } from "motion/react";
 import { useState, useEffect } from "react";
 import { ArrowUpRight, MapPin } from "lucide-react";
 import { Link } from "react-router";
-import { motion } from "motion/react";
 import { getAllKulinerPublic } from "../../service/kuliner.service";
 
 const Rekomendasi = () => {
@@ -17,7 +18,6 @@ const Rekomendasi = () => {
     try {
       const res = await getAllKulinerPublic({ limit: 50 });
       if (res.status && res.data && res.data.length > 0) {
-        // Get random kuliner from the list
         const randomIndex = Math.floor(Math.random() * res.data.length);
         setKulinerHighlight(res.data[randomIndex]);
       }
@@ -38,7 +38,10 @@ const Rekomendasi = () => {
 
   if (isLoading || !kulinerHighlight) {
     return (
-      <div id="rekomendasi" className="min-h-screen w-full flex items-center justify-center px-6 md:px-20 py-10">
+      <div
+        id="rekomendasi"
+        className="min-h-screen w-full flex items-center justify-center px-6 md:px-20 py-10"
+      >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl w-full items-center">
           <div className="space-y-6">
             <div className="h-16 bg-gray-200 rounded-lg animate-pulse"></div>
@@ -52,7 +55,10 @@ const Rekomendasi = () => {
   }
 
   return (
-    <div id="rekomendasi" className="min-h-screen w-full flex items-center justify-center px-6 md:px-20 py-10">
+    <div
+      id="rekomendasi"
+      className="min-h-screen w-full flex items-center justify-center px-6 md:px-20 py-10"
+    >
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-7xl w-full items-center">
         <motion.div
           initial={{ opacity: 0, x: -50 }}

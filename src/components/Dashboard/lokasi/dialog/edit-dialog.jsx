@@ -143,10 +143,11 @@ const EditDialog = ({ data }) => {
                 Deskripsi Daerah
               </label>
               <Textarea
-                className="resize-none"
+                className="resize-none max-w-md"
                 type="text"
                 name="deskripsi_daerah"
                 placeholder="Masukkan Dekripsi Daerah"
+                rows={2}
                 value={formData.deskripsi_daerah}
                 onChange={handleChange}
               />

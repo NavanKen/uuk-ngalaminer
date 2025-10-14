@@ -38,7 +38,6 @@ export const getKulinerPaginate = async ({
     )
     .ilike("nama_kuliner", `%${search}%`);
 
-  // Filter by user if not admin
   if (role !== "admin" && userId) {
     query = query.eq("id_profile", userId);
   }
@@ -54,8 +53,18 @@ export const getKulinerPaginate = async ({
 };
 
 export const KulinerCreate = async (payload) => {
-  const { nama_kuliner, id_category, id_lokasi, harga, deskripsi, file, id_profile } =
-    payload;
+  const {
+    nama_kuliner,
+    id_category,
+    id_lokasi,
+    harga,
+    deskripsi,
+    file,
+    id_profile,
+    detail_address,
+    jam_buka,
+    jam_tutup,
+  } = payload;
 
   const gambar = await uploadFile(file);
 
@@ -63,9 +72,18 @@ export const KulinerCreate = async (payload) => {
     return { status: false, pesan: "Gagal upload File" };
   }
 
-  const { error } = await supabase
-    .from("kuliner")
-    .insert({ nama_kuliner, id_category, id_lokasi, harga, deskripsi, gambar, id_profile });
+  const { error } = await supabase.from("kuliner").insert({
+    nama_kuliner,
+    id_category,
+    id_lokasi,
+    harga,
+    deskripsi,
+    gambar,
+    jam_buka,
+    jam_tutup,
+    detail_address,
+    id_profile,
+  });
 
   if (error) {
     return {
@@ -81,11 +99,31 @@ export const KulinerCreate = async (payload) => {
 };
 
 export const KulinerEdit = async (payload) => {
-  const { nama_kuliner, id_category, id_lokasi, harga, deskripsi, gambar, id_kuliner } =
-    payload;
+  const {
+    nama_kuliner,
+    id_category,
+    id_lokasi,
+    harga,
+    deskripsi,
+    gambar,
+    id_kuliner,
+    detail_address,
+    jam_buka,
+    jam_tutup,
+  } = payload;
   const { error } = await supabase
     .from("kuliner")
-    .update({ nama_kuliner, id_category, id_lokasi, harga, deskripsi, gambar })
+    .update({
+      nama_kuliner,
+      id_category,
+      id_lokasi,
+      harga,
+      deskripsi,
+      gambar,
+      detail_address,
+      jam_buka,
+      jam_tutup,
+    })
     .eq("id_kuliner", id_kuliner)
     .select()
     .single();

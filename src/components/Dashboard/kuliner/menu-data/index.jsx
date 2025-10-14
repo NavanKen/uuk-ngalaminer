@@ -149,6 +149,9 @@ const MenuData = ({ search, limit, page, onPageChange, onLimitChange }) => {
                             id_lokasi: menu.id_lokasi,
                             harga: menu.harga,
                             deskripsi: menu.deskripsi,
+                            detail_address: menu.detail_address,
+                            jam_buka: menu.jam_buka,
+                            jam_tutup: menu.jam_tutup,
                             gambar: menu.gambar,
                           }}
                         />

@@ -28,7 +28,7 @@ const LandingPages = () => {
       <Navbar />
       <div className="bg-gradient-to-b from-background/80 via-background/75 to-background">
         <Hero />
-        <Galery />
+        {/* <Galery /> */}
         <Rekomendasi />
         <Cta />
       </div>
