@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getAllKulinerPublic } from "../service/kuliner.service";
 
 export const useKulinerList = ({
@@ -11,11 +11,7 @@ export const useKulinerList = ({
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
 
-  useEffect(() => {
-    fetchKuliner();
-  }, [search, categoryId, limit, page]);
-
-  const fetchKuliner = async () => {
+  const fetchKuliner = useCallback(async () => {
     setIsLoading(true);
     const offset = (page - 1) * limit;
 
@@ -31,7 +27,11 @@ export const useKulinerList = ({
       setTotal(res.count);
     }
     setIsLoading(false);
-  };
+  }, [search, categoryId, limit, page]);
+
+  useEffect(() => {
+    fetchKuliner();
+  }, [fetchKuliner]);
 
   return {
     kulinerData,

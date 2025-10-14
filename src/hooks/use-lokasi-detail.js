@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getLokasiById } from "../service/lokasi.service";
 import { getKulinerByLokasi } from "../service/kuliner.service";
 
@@ -7,27 +7,25 @@ export const useLokasiDetail = (id) => {
   const [kulinerList, setKulinerList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (id) {
-      fetchLokasiDetail();
-    }
-  }, [id]);
-
-  const fetchLokasiDetail = async () => {
+  const fetchLokasiDetail = useCallback(async () => {
+    if (!id) return;
     setIsLoading(true);
-    const res = await getLokasiById(id);
 
+    const res = await getLokasiById(id);
     if (res.status && res.data) {
       setLokasi(res.data);
-
-      // Fetch kuliner from this location
       const kulinerRes = await getKulinerByLokasi(id, 6);
       if (kulinerRes.status) {
         setKulinerList(kulinerRes.data);
       }
     }
+
     setIsLoading(false);
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchLokasiDetail();
+  }, [fetchLokasiDetail]);
 
   return {
     lokasi,
