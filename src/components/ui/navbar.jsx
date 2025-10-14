@@ -1,5 +1,14 @@
 import { motion, AnimatePresence } from "motion/react";
-import { User, Menu, X, Home, LayoutGrid, Info, Utensils, MapPin } from "lucide-react";
+import {
+  User,
+  Menu,
+  X,
+  Home,
+  LayoutGrid,
+  Info,
+  Utensils,
+  MapPin,
+} from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../../store/useAuthStore";
@@ -27,11 +36,11 @@ const Navbar = () => {
       href: "/",
       icon: Home,
     },
-    {
-      title: "Galery",
-      href: "/#galery",
-      icon: LayoutGrid,
-    },
+    // {
+    //   title: "Galery",
+    //   href: "/#galery",
+    //   icon: LayoutGrid,
+    // },
     {
       title: "Rekomendasi",
       href: "/#rekomendasi",
@@ -43,10 +52,10 @@ const Navbar = () => {
       icon: Utensils,
     },
     {
-      title : "Lokasi",
+      title: "Lokasi",
       href: "/lokasi",
       icon: MapPin,
-    }
+    },
   ];
 
   const getProfileLink = () => {
@@ -61,15 +70,13 @@ const Navbar = () => {
   };
 
   const handleNavClick = (e, href) => {
-    // Check if it's a hash link (section link)
     if (href.includes("#")) {
       e.preventDefault();
       const [path, hash] = href.split("#");
-      
-      // If we're not on the home page, navigate there first
+
       if (location.pathname !== "/" && path === "/") {
         navigate("/");
-        // Wait for navigation then scroll
+
         setTimeout(() => {
           const element = document.getElementById(hash);
           if (element) {
@@ -77,7 +84,6 @@ const Navbar = () => {
           }
         }, 100);
       } else {
-        // Already on home page, just scroll
         const element = document.getElementById(hash);
         if (element) {
           element.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -85,13 +91,10 @@ const Navbar = () => {
       }
       setIsMobileMenuOpen(false);
     } else if (href === "/") {
-      // Beranda link - scroll to top with animation
       e.preventDefault();
       if (location.pathname === "/") {
-        // Already on home page, scroll to top
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
-        // Navigate to home page
         navigate("/");
       }
       setIsMobileMenuOpen(false);

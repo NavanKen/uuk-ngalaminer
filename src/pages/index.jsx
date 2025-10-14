@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router";
 import Navbar from "../components/ui/navbar";
-import Galery from "../components/LandingPages/Galery";
+// import Galery from "../components/LandingPages/Galery";
 import Hero from "../components/LandingPages/hero";
 import Rekomendasi from "../components/LandingPages/Rekomendasi";
 import Footer from "../components/ui/footer";
@@ -28,7 +28,7 @@ const LandingPages = () => {
       <Navbar />
       <div className="bg-gradient-to-b from-background/80 via-background/75 to-background">
         <Hero />
-        <Galery />
+        {/* <Galery /> */}
         <Rekomendasi />
         <Cta />
       </div>
