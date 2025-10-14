@@ -19,6 +19,7 @@ import EditDialog from "../dialog/edit-dialog";
 import DeleteDialog from "../dialog/delete-dialog";
 import { useKuliner } from "../../../../hooks/use-kuliner";
 import { useAuthStore } from "../../../../store/useAuthStore";
+import { limitWords } from "../../../../lib/helper/limit";
 
 const MenuData = ({ search, limit, page, onPageChange, onLimitChange }) => {
   const { authUser } = useAuthStore();
@@ -134,7 +135,7 @@ const MenuData = ({ search, limit, page, onPageChange, onLimitChange }) => {
                       {formatRupiah(menu.harga)}
                     </TableCell>
                     <TableCell className="py-3">
-                      {menu.deskripsi || "-"}
+                      {limitWords(menu.deskripsi, 5)}
                     </TableCell>
                     <TableCell className="py-3">
                       {formatDate(menu.tanggal_ditambahkan)}

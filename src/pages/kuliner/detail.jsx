@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router";
-import { MapPin, Calendar, User, ArrowLeft } from "lucide-react";
+import { MapPin, Calendar, User, ArrowLeft, Clock } from "lucide-react";
 import Navbar from "../../components/ui/navbar";
 import Footer from "../../components/ui/footer";
 import {
@@ -153,7 +153,7 @@ const KulinerDetailPage = () => {
               className="space-y-6"
             >
               <div>
-                <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#FF6B35] to-[#FF6B35]/70 bg-clip-text text-transparent">
+                <h1 className="text-4xl font-bold mb-4 leading-tight bg-gradient-to-r from-[#FF6B35] to-[#FF6B35]/70 bg-clip-text text-transparent">
                   {kuliner.nama_kuliner}
                 </h1>
 
@@ -185,11 +185,21 @@ const KulinerDetailPage = () => {
                     <p className="text-muted-foreground">
                       {kuliner.lokasi?.nama_daerah || "-"}
                     </p>
-                    {kuliner.lokasi?.alamat_lengkap && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {kuliner.lokasi.alamat_lengkap}
-                      </p>
-                    )}
+
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {kuliner.detail_address}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <Clock className="size-5 text-[#FF6B35] mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold mb-1">Jam Operasional</p>
+                    <p className="text-muted-foreground">{`${kuliner.jam_buka.slice(
+                      0,
+                      5
+                    )} - ${kuliner.jam_tutup.slice(0, 5)}`}</p>
                   </div>
                 </div>
 

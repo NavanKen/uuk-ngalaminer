@@ -95,7 +95,7 @@ const Rekomendasi = () => {
             viewport={{ once: true }}
           >
             <Link
-              to={`/kuliner/${kulinerHighlight.id_kuliner}`}
+              to={`/kuliner`}
               className="inline-flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-slate-800 transition-all duration-300 shadow-lg hover:shadow-xl group"
             >
               <ArrowUpRight className="w-5 h-5 transition-transform group-hover:scale-125 group-hover:rotate-12 duration-300" />
