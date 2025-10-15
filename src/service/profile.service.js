@@ -2,7 +2,6 @@ import { supabase } from "../lib/supabase/client";
 import { supabaseAdmin } from "../lib/supabase/admin";
 import { environment } from "../lib/config/environment";
 
-// Real-time subscription
 export const subscribeProfile = (callback) => {
   const channel = supabase
     .channel("profile-changes")
@@ -22,7 +21,6 @@ export const subscribeProfile = (callback) => {
   };
 };
 
-// Get all profiles with pagination and filters
 export const getProfilePaginate = async ({
   search = "",
   limit = 10,
@@ -52,7 +50,6 @@ export const getProfilePaginate = async ({
   return { status: true, data, count };
 };
 
-// Get profile by ID
 export const getProfileById = async (id) => {
   const { data, error } = await supabase
     .from("profile")
@@ -66,10 +63,8 @@ export const getProfileById = async (id) => {
   return { status: true, data };
 };
 
-// Create profile with auth user (using admin client)
 export const createProfile = async (profileData) => {
   try {
-    // 1. Create auth user
     const { data: authData, error: authError } =
       await supabaseAdmin.auth.admin.createUser({
         email: profileData.email,
@@ -84,7 +79,6 @@ export const createProfile = async (profileData) => {
       return { status: false, error: authError };
     }
 
-    // 2. Create profile
     const { data: profile, error: profileError } = await supabase
       .from("profile")
       .insert({
@@ -99,7 +93,6 @@ export const createProfile = async (profileData) => {
       .single();
 
     if (profileError) {
-      // Rollback: delete auth user if profile creation fails
       await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
       return { status: false, error: profileError };
     }
@@ -110,7 +103,6 @@ export const createProfile = async (profileData) => {
   }
 };
 
-// Update profile
 export const updateProfile = async (id, profileData) => {
   const { data, error } = await supabase
     .from("profile")

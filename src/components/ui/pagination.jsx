@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const Pagination = ({ currentPage, page, totalPages, onPageChange }) => {
-  // Support both currentPage and page props for compatibility
   const activePage = currentPage || page || 1;
   const safeTotal = totalPages || 0;
 

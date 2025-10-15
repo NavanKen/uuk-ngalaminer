@@ -13,7 +13,13 @@ export const useKuliner = (search, limit, page, userId = null, role = null) => {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     const offset = (page - 1) * limit;
-    const res = await getKulinerPaginate({ search, limit, offset, userId, role });
+    const res = await getKulinerPaginate({
+      search,
+      limit,
+      offset,
+      userId,
+      role,
+    });
 
     if (res.status && res.data) {
       setMenuData(res.data);
@@ -36,13 +42,14 @@ export const useKuliner = (search, limit, page, userId = null, role = null) => {
           if (
             newData.nama_kuliner.toLowerCase().includes(search.toLowerCase())
           ) {
-            // Fetch data lengkap dengan relasi
             const fullDataRes = await getKulinerById(newData.id_kuliner);
-            
+
             if (fullDataRes.status && fullDataRes.data) {
               const offset = (page - 1) * limit;
               if (offset === 0) {
-                setMenuData((prev) => [fullDataRes.data, ...prev].slice(0, limit));
+                setMenuData((prev) =>
+                  [fullDataRes.data, ...prev].slice(0, limit)
+                );
                 setTotal((prev) => prev + 1);
               } else {
                 setTotal((prev) => prev + 1);
@@ -54,10 +61,9 @@ export const useKuliner = (search, limit, page, userId = null, role = null) => {
 
         case "UPDATE": {
           const updated = payload.new;
-          
-          // Fetch data lengkap dengan relasi
+
           const fullDataRes = await getKulinerById(updated.id_kuliner);
-          
+
           if (fullDataRes.status && fullDataRes.data) {
             setMenuData((prev) =>
               prev.map((item) =>

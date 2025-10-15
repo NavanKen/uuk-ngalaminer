@@ -36,7 +36,8 @@ export const getKulinerPaginate = async ({
     `,
       { count: "exact" }
     )
-    .ilike("nama_kuliner", `%${search}%`);
+    .ilike("nama_kuliner", `%${search}%`)
+    .order("tanggal_ditambahkan", { ascending: false });
 
   if (role !== "admin" && userId) {
     query = query.eq("id_profile", userId);
